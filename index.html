@@ -30,7 +30,7 @@
 </head>
 
 <body>
-    <h1>Electron Auto Updated Example (NEW!)</h1>
+    <h1>Electron Auto Updated Example (NEW! NOW WITH CAKE)</h1>
     <p id="version"></p>
     <div id="notification" class="hidden">
         <p id="message"></p>
@@ -65,7 +65,10 @@
             restartButton.classList.remove('hidden');
             notification.classList.remove('hidden');
         });
-
+        ipcRenderer.on('update_error', () => {
+            ipcRenderer.removeAllListeners('update_error');
+            alert('Something went wrong with the update!')
+        })
         function closeNotification() {
             notification.classList.add('hidden');
         }

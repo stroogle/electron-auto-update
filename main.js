@@ -30,6 +30,10 @@ function createWindow() {
 	autoUpdater.on('update-downloaded', () => {
 		mainWindow.webContents.send('update_downloaded');
 	});
+
+	autoUpdater.on('error', () => {
+		mainWindow.webContents.send('update_error');
+	});
 }
 
 // This method will be called when Electron has finished
