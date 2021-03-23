@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
 
@@ -9,7 +9,9 @@ function createWindow() {
 		width: 800,
 		height: 600,
 		webPreferences: {
-			preload: path.join(__dirname, 'preload.js')
+			preload: path.join(__dirname, 'preload.js'),
+			nodeIntegration: true,
+			contextIsolation: false
 		}
 	});
 
@@ -18,6 +20,9 @@ function createWindow() {
 
 	// Open the DevTools.
 	// mainWindow.webContents.openDevTools()
+	mainWindow.once('ready-to-show', () => {
+		autoUpdater.checkForUpdatesAndNotify();
+	});
 }
 
 // This method will be called when Electron has finished
@@ -43,6 +48,21 @@ app.on('window-all-closed', function() {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 
-app.on('ready', () => {
-	autoUpdater.checkForUpdatesAndNotify();
+// app.on('ready', () => {
+// 	autoUpdater.checkForUpdatesAndNotify();
+// });
+
+ipcMain.on('app_version', (event) => {
+	event.sender.send('app_version', { version: app.getVersion() });
+});
+
+autoUpdater.on('update-available', () => {
+	mainWindow.webContents.send('update_available');
+});
+autoUpdater.on('update-downloaded', () => {
+	mainWindow.webContents.send('update_downloaded');
+});
+
+ipcMain.on('restart_app', () => {
+	autoUpdater.quitAndInstall();
 });
